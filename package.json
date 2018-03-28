@@ -1,0 +1,23 @@
+{
+  "name": "react-native-gallery-media-picker",
+  "version": "0.1.0",
+  "description": "A react native component that will get all the media files (images and video) from device gallery and allow to select items",
+  "main": "index.js",
+  "scripts": {
+    "test": "test-component"
+  },
+  "keywords": [
+    "react-native",
+    "camera-roll",
+    "media",
+    "component",
+    "react-native",
+    "component"
+  ],
+  "peerDependencies": {
+    "react": "^16.3.0-alpha.1",
+    "react-native": "0.54.3"
+  },
+  "author": "Andrei Rat",
+  "license": "ISC"
+}
