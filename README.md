@@ -1,6 +1,11 @@
 # @around25/react-native-gallery-media-picker
 
 
+![npm](https://img.shields.io/npm/v/@around25/react-native-gallery-media-picker.svg) ![npm](https://img.shields.io/npm/l/@around25/react-native-gallery-media-picker.svg) ![npm](https://img.shields.io/npm/dw/@around25/react-native-gallery-media-picker.svg) ![npm](https://img.shields.io/npm/dt/@around25/react-native-gallery-media-picker.svg)
+
+
+
+
 This is a react-native component that fetches gallery files ( images and video ) and render them in a list. Every picture or video can be selected the array with selected items is returned in a callback.
 
   - works on iOS and Android
@@ -88,7 +93,7 @@ import { PermissionsAndroid } from 'react-native';
 | `maximumSelectedFiles` | YES | YES | Specifies the number of files that can be selected | ***15*** | - | **{integer}**
 | `selected` | YES | YES | Specifies the array with selected files that are retuned from callback in your component | ***[]***  | - | **{array}**
 | `itemsPerRow` | YES | YES | Specifies the number of items on one row | ***3***  | - | **{integer}**
-| `itemsPerRow` | YES | YES | Specifies margins of the image | ***5***  | - | **{integer}**
+| `imageMargin` | YES | YES | Specifies margins of the image | ***5***  | - | **{integer}**
 | `customLoader` | YES | YES | Specifies custom component with loading indicator | ***<ActivityIndicator/>***  | - | **{component}**
 | `customSelectMarker` | YES | YES | Specifies custom component with select marker | ***<Image/>***  | - | **{component}**
 | `markIcon` | YES | YES | Specifies custom icon for default marker | - | - | **{image}**
@@ -217,13 +222,12 @@ const styles = StyleSheet.create({
 
 ```
 
-### Todos
+# Todos
 
  - add more options 
  - add filter buttons
- - add overlay on videos with duration
+ - add overlay with total video duration
 
-License
-----
+# License
 
 MIT
