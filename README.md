@@ -1,6 +1,5 @@
-# react-native-gallery-media-picker
+# @around25/react-native-gallery-media-picker
 
-[![N|Solid](https://around25.com/static/img/a25-logo-color.png)](https://nodesource.com/products/nsolid)
 
 This is a react-native component that fetches gallery files ( images and video ) and render them in a list. Every picture or video can be selected the array with selected items is returned in a callback.
 
@@ -19,13 +18,11 @@ This is a react-native component that fetches gallery files ( images and video )
   - custom text if there are no photos or videos in gallery
   - set number of items per row
   - set media file margins
-  - 
-
 
 ### Installation
 
 ```sh
-$ npm install react-native-gallery-files-picker --save
+$ npm i @around25/react-native-gallery-media-picker --save
 ```
 
 ### iOS

@@ -1,5 +1,5 @@
 {
-  "name": "react-native-gallery-media-picker",
+  "name": "@around25/react-native-gallery-media-picker",
   "version": "0.1.0",
   "description": "A react native component that will get all the media files (images and video) from device gallery and allow to select items",
   "main": "index.js",
@@ -19,5 +19,16 @@
     "react-native": "0.54.3"
   },
   "author": "Andrei Rat",
-  "license": "ISC"
+  "license": "MIT",
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Around25/react-native-gallery-media-picker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Around25/react-native-gallery-media-picker/issues"
+  },
+  "homepage": "https://github.com/Around25/react-native-gallery-media-picker#readme"
 }
