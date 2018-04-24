@@ -282,7 +282,7 @@ class GalleryMediaPicker extends Component {
             initialNumToRender={batchSize}
             onEndReached={this.onEndReached.bind(this)}
             renderItem={({item}) => this.renderRow(item)}
-            keyExtractor={item => item[0].node.image.uri}
+            keyExtractor={(item, index) => item[0].node.image.uri+item[0].timestamp+index}
             data={dataSource}
             extraData={this.state.selected}
           />
