@@ -16,7 +16,8 @@
   ],
   "peerDependencies": {
     "react": "^16.3.0-alpha.1",
-    "react-native": "0.54.3"
+    "react-native": "0.54.3",
+    "react-native-thumbnail-a25av": "^1.2.0"
   },
   "author": "Andrei Rat",
   "license": "MIT",
@@ -30,5 +31,6 @@
   "bugs": {
     "url": "https://github.com/Around25/react-native-gallery-media-picker/issues"
   },
-  "homepage": "https://github.com/Around25/react-native-gallery-media-picker#readme"
+  "homepage": "https://github.com/Around25/react-native-gallery-media-picker#readme",
+  "dependencies": {}
 }
