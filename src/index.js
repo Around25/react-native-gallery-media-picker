@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { CameraRoll, Platform, View, Text, FlatList, ActivityIndicator } from 'react-native';
-
+import _ from 'lodash'
 import MediaItem from '../src/components/MediaItem';
 import styles from './styles';
+import AlbumsList from "../src/components/AlbumsList";
 
 class GalleryMediaPicker extends Component {
   constructor( props ) {
@@ -27,6 +28,7 @@ class GalleryMediaPicker extends Component {
       assetType:                 'Photos',
       backgroundColor:           'white',
       emptyGalleryText:          'There are no photos or video',
+      albums:                    []
     };
   }
   
@@ -78,6 +80,7 @@ class GalleryMediaPicker extends Component {
    */
   appendFiles(data) {
     let assets = data.edges;
+    this.extract(assets)
     let newState = {
       loadingMore: false,
       fetching: false,
@@ -94,6 +97,21 @@ class GalleryMediaPicker extends Component {
     }
     this.setState( newState );
   }
+
+  
+  
+  extract = (items) => {
+    let res = items.map(item => item.node);
+    this.sort(res)
+  };
+  
+  sort = (items) => {
+    let albums = [];
+    grouped = Object.values(_.groupBy(items, function(item) {return item.group_name }) )
+    grouped.map(list => {return albums.push({albumName: list[0].group_name, photos: list})})
+    this.setState({albums})
+  };
+  
   
   /**
    * @description Render background color for the container
@@ -120,7 +138,7 @@ class GalleryMediaPicker extends Component {
    * @param item
    * @return {XML}
    */
-  renderMediaItem( item ) {
+  renderMediaItem( item, index ) {
     let { selected } = this.state;
     let {
       imageMargin,
@@ -132,10 +150,10 @@ class GalleryMediaPicker extends Component {
     
     let uri = item.node.image.uri;
     let isSelected = (this.existsInArray( selected, 'uri', uri ) >= 0);
-    
+
     return (
       <MediaItem
-        key={uri}
+        key={uri+index}
         markIcon={markIcon}
         item={item}
         selected={isSelected}
@@ -153,12 +171,12 @@ class GalleryMediaPicker extends Component {
    * @param rowData
    * @return {XML}
    */
-  renderRow( rowData ) {
+  renderRow( rowData, index ) {
     let items = rowData.map( ( item ) => {
       if ( item === null ) {
         return null;
       }
-      return this.renderMediaItem( item );
+      return this.renderMediaItem( item, index );
     } );
     
     return (
@@ -255,7 +273,7 @@ class GalleryMediaPicker extends Component {
   }
   
   render() {
-    let { dataSource } = this.state;
+    let { dataSource, albums } = this.state;
     let {
       batchSize,
       imageMargin,
@@ -263,32 +281,24 @@ class GalleryMediaPicker extends Component {
       emptyTextStyle,
       customLoader,
     } = this.props;
-    
-    
-    if ( this.state.fetching ) {
-      return (
-        <View style={[ styles.loading, { backgroundColor: this.renderBackgroundColor() } ]}>
-          {customLoader  || <ActivityIndicator size={this.renderLoaderStyle().size} color={this.renderLoaderStyle().color} />}
-        </View>
-      );
-    }
-    
+  
     return (
-      <View style={[styles.wrapper, {padding: imageMargin, backgroundColor: this.renderBackgroundColor()}]}>
-        { dataSource.length > 0 ? (
-          <FlatList
-            style={{flex: 1}}
-            ListFooterComponent={this.renderFooterLoader.bind(this)}
-            initialNumToRender={batchSize}
-            onEndReached={this.onEndReached.bind(this)}
-            renderItem={({item}) => this.renderRow(item)}
-            keyExtractor={(item, index) => item[0].node.image.uri+item[0].timestamp+index}
-            data={dataSource}
-            extraData={this.state.selected}
-          />
-        ) : (
-          <Text style={[styles.emptyText, emptyTextStyle]}>{emptyGalleryText}</Text>
-        )}
+      <View style={styles.base}>
+        <AlbumsList albums={albums}/>
+        {/*{ dataSource.length > 0 ? (*/}
+          {/*<FlatList*/}
+            {/*style={{flex: 1}}*/}
+            {/*ListFooterComponent={this.renderFooterLoader.bind(this)}*/}
+            {/*initialNumToRender={batchSize}*/}
+            {/*onEndReached={this.onEndReached.bind(this)}*/}
+            {/*renderItem={({item, index}) => this.renderRow(item, index)}*/}
+            {/*keyExtractor={(item, index) => item[0].node.image.uri+item[0].timestamp+index}*/}
+            {/*data={dataSource}*/}
+            {/*extraData={this.state.selected}*/}
+          {/*/>*/}
+        {/*) : (*/}
+          {/*<Text style={[styles.emptyText, emptyTextStyle]}>{emptyGalleryText}</Text>*/}
+        {/*)}*/}
       </View>
     );
   }

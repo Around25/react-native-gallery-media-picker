@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import RNThumbnail from 'react-native-thumbnail-nevo';
+import RNThumbnail from 'react-native-thumbnail-a25av';
 import { Image, View, Dimensions, TouchableOpacity, Platform } from 'react-native';
 
 const checkedIcon  = require("../../assets/images/check-mark.png");
