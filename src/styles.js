@@ -20,5 +20,9 @@ export default StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center'
+  },
+  base: {
+    flexGrow: 1,
+    paddingRight: 0
   }
 });
