@@ -59,8 +59,8 @@ class MediaItem extends Component {
    * @description Trigger when file is pressed
    * @param item
    */
-  onFilePress( item ) {
-    this.props.onClick( item.node );
+  onFilePress (item) {
+    this.props.onClick(item.node);
   }
 
   /**
@@ -68,8 +68,8 @@ class MediaItem extends Component {
    * @param markIcon
    * @return {XML}
    */
-  renderMarker( markIcon ) {
-    return(
+  renderMarker (markIcon) {
+    return (
       <Image style={styles.marker} source={markIcon ? markIcon : checkedIcon}/>
     )
   };

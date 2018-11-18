@@ -8,15 +8,15 @@ import styles from './styles'
 class AlbumItem extends Component {
   constructor( props ) {
     super( props );
-    this.state = {
-    
-    };
+    this.state = {};
   }
-  
+
   render() {
     let { albumName, thumbnail, counter, index } = this.props;
     return (
-      <TouchableOpacity style={[styles.base, index === 0 && styles.first]}>
+      <TouchableOpacity
+        style={[styles.base, index === 0 && styles.first]}
+        onPress={() => this.props.onAlbumPress(albumName)}>
         <Image source={{uri: thumbnail}} style={styles.thumb}/>
         <View style={styles.textWrapper}>
           <Text style={styles.name}>{albumName}</Text>

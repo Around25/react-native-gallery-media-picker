@@ -10,23 +10,30 @@ class AlbumsList extends Component {
   constructor( props ) {
     super( props );
     this.state = {
-    
+
     };
   }
 
- 
+
 
   render() {
     let { albums } = this.props;
-    console.log(albums);
+
     return (
       <ScrollView style={{flex:1, backgroundColor: 'white'}}>
         {albums.map((album, index) => (
-          <AlbumItem key={index} albumName={album.albumName} thumbnail={album.photos[0].image.uri} counter={album.photos.length || 0} index={index}/>
+          <AlbumItem
+            key={index}
+            albumName={album.albumName}
+            thumbnail={album.photos[0].image.uri}
+            counter={album.photos.length || 0}
+            index={index}
+            onAlbumPress={this.props.onAlbumPress} />
         ))}
       </ScrollView>
     );
   }
 
 }
+
 export default AlbumsList;

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { CameraRoll, Platform, View, Text, FlatList, ActivityIndicator } from 'react-native';
 import _ from 'lodash'
-import MediaItem from '../src/components/MediaItem';
+import AlbumsList from '../src/components/AlbumsList';
+import MediaList from '../src/components/MediaList';
 import styles from './styles';
-import AlbumsList from "../src/components/AlbumsList";
 
 class GalleryMediaPicker extends Component {
   constructor( props ) {
     super( props );
-    
+
     this.state = {
       images:                    [],
       selected:                  this.props.selected,
@@ -27,92 +27,116 @@ class GalleryMediaPicker extends Component {
       selectSingleItem:          false,
       assetType:                 'Photos',
       backgroundColor:           'white',
-      emptyGalleryText:          'There are no photos or video',
-      albums:                    []
+      emptyGalleryText:          'There are no photos or videos',
+      albums:                    [],
+      albumSelected:             ''
     };
   }
-  
+
   componentWillMount() {
     this.getFiles();
   }
-  
+
   componentWillReceiveProps( nextProps ) {
     this.setState( { selected: nextProps.selected } );
   }
-  
+
   /**
    * @description Get files from camera roll
    */
-  getFiles() {
-    if ( !this.state.loadingMore ) {
+  getFiles () {
+    if (!this.state.loadingMore) {
       this.setState({loadingMore: true}, () => {
         this.getCameraRollFiles();
       });
     }
   }
-  
+
   /**
    * @description Fetch camera roll files
    */
   getCameraRollFiles() {
-    let {groupTypes, assetType, firstLimit} = this.props;
+    let { groupTypes, assetType, firstLimit } = this.props;
+
     let fetchParams = {
       first: firstLimit !== undefined ? firstLimit : 1000,
       groupTypes: groupTypes,
       assetType: assetType,
     };
-    
+
     if (Platform.OS === "android") {
       delete fetchParams.groupTypes;
     }
-    
+
     if (this.state.lastCursor) {
       fetchParams.after = this.state.lastCursor;
     }
-    
+
+    console.log(fetchParams);
+
+
     CameraRoll.getPhotos(fetchParams)
       .then((data) => this.appendFiles(data), (e) => console.error(e));
   }
-  
+
   /**
    * @description This function is sorting files and put them on the state
    * @param data
    */
   appendFiles(data) {
     let assets = data.edges;
-    this.extract(assets)
+
+    this.extract(assets);
+
     let newState = {
       loadingMore: false,
       fetching: false,
     };
-    
+
     if (!data.page_info.has_next_page) {
       newState.noMoreFiles = true;
     }
-    
+
     if (assets.length > 0) {
       newState.lastCursor = data.page_info.end_cursor;
       newState.images = this.state.images.concat(assets);
       newState.dataSource = this.filterMediaRow(newState.images, this.props.itemsPerRow)
     }
-    this.setState( newState );
+
+    this.setState(newState);
   }
 
-  
-  
-  extract = (items) => {
+  /**
+   * @description Extracts images from array
+   */
+  extract (items) {
     let res = items.map(item => item.node);
-    this.sort(res)
-  };
-  
-  sort = (items) => {
+    this.sort(res);
+  }
+
+
+  /**
+   * @description Sorts images based on album
+   */
+  sort (items) {
     let albums = [];
-    grouped = Object.values(_.groupBy(items, function(item) {return item.group_name }) )
-    grouped.map(list => {return albums.push({albumName: list[0].group_name, photos: list})})
-    this.setState({albums})
-  };
-  
-  
+    grouped = Object.values(_.groupBy(items, (item) => item.group_name));
+    grouped.map(list => {return albums.push({albumName: list[0].group_name, photos: list})});
+    console.log(albums);
+
+    this.setState({
+      albums
+    });
+  }
+
+
+  selectAlbum (albumName) {
+    this.setState({
+      albumSelected: albumName
+    });
+  }
+
+
   /**
    * @description Render background color for the container
    * @return {string}
@@ -120,7 +144,7 @@ class GalleryMediaPicker extends Component {
   renderBackgroundColor(){
     return this.props.backgroundColor !== undefined ? this.props.backgroundColor : this.state.backgroundColor;
   }
-  
+
   /**
    * @description Render default loader style
    * @return {{color: string, size: string}}
@@ -132,80 +156,16 @@ class GalleryMediaPicker extends Component {
       size: props.activityIndicatorSize !== undefined ? props.activityIndicatorSize : this.state.activityIndicatorSize
     }
   }
-  
-  /**
-   * @description Render media item
-   * @param item
-   * @return {XML}
-   */
-  renderMediaItem( item, index ) {
-    let { selected } = this.state;
-    let {
-      imageMargin,
-      customSelectMarker,
-      markIcon,
-      itemsPerRow,
-      containerWidth
-    } = this.props;
-    
-    let uri = item.node.image.uri;
-    let isSelected = (this.existsInArray( selected, 'uri', uri ) >= 0);
 
-    return (
-      <MediaItem
-        key={uri+index}
-        markIcon={markIcon}
-        item={item}
-        selected={isSelected}
-        imageMargin={imageMargin}
-        customSelectMarker={customSelectMarker}
-        itemsPerRow={itemsPerRow}
-        containerWidth={containerWidth}
-        onClick={this.selectMediaFile.bind( this )}
-      />
-    );
-  }
-  
-  /**
-   * @description Render list row
-   * @param rowData
-   * @return {XML}
-   */
-  renderRow( rowData, index ) {
-    let items = rowData.map( ( item ) => {
-      if ( item === null ) {
-        return null;
-      }
-      return this.renderMediaItem( item, index );
-    } );
-    
-    return (
-      <View style={styles.row}>
-        {items}
-      </View>
-    );
-  }
-  
-  /**
-   * @description Render footer loader when more files are fetching
-   * @return {*}
-   */
-  renderFooterLoader() {
-    if ( !this.state.noMoreFiles ) {
-      return <ActivityIndicator color={this.state.activityIndicatorColor}/>;
-    }
-    return null;
-  }
-  
   /**
    * @description On list end reached , load more files if there are any
    */
   onEndReached() {
-    if ( !this.state.noMoreFiles ) {
+    if (!this.state.noMoreFiles) {
       this.getFiles();
     }
   }
-  
+
   /**
    * @description Select media file function
    * @param item
@@ -214,7 +174,7 @@ class GalleryMediaPicker extends Component {
     let { maximumSelectedFiles, itemsPerRow, callback, selectSingleItem } = this.props;
     let selected = this.state.selected,
       index = this.existsInArray( selected, 'uri', item.image.uri );
-    
+
     if ( index >= 0 ) {
       selected.splice( index, 1 );
     } else {
@@ -229,10 +189,10 @@ class GalleryMediaPicker extends Component {
       selected:   selected,
       dataSource:  this.filterMediaRow( this.state.images, itemsPerRow )
     } );
-    
-    callback( selected, item );
+
+    callback(selected, item);
   }
-  
+
   /**
    * @description Sort
    * @param files
@@ -242,7 +202,7 @@ class GalleryMediaPicker extends Component {
   filterMediaRow( files, numberOfRows ) {
     let result = [],
       temp = [];
-    
+
     for ( let i = 0; i < files.length; ++i ) {
       if ( i > 0 && i % numberOfRows === 0 ) {
         result.push( temp );
@@ -250,17 +210,17 @@ class GalleryMediaPicker extends Component {
       }
       temp.push( files[ i ] );
     }
-    
+
     if ( temp.length > 0 ) {
       while ( temp.length !== numberOfRows ) {
         temp.push( null );
       }
       result.push( temp );
     }
-    
+
     return result;
   }
-  
+
   /**
    * @param array
    * @param property
@@ -271,39 +231,44 @@ class GalleryMediaPicker extends Component {
       return o.image[ property ];
     } ).indexOf( value );
   }
-  
-  render() {
-    let { dataSource, albums } = this.state;
-    let {
-      batchSize,
-      imageMargin,
-      emptyGalleryText,
-      emptyTextStyle,
-      customLoader,
-    } = this.props;
-  
+
+  renderMedia () {
+    if (!this.state.albumSelected) {
+      return (
+        <AlbumsList
+          albums={this.state.albums}
+          onAlbumPress={this.selectAlbum.bind(this)}/>
+      );
+    } else {
+      return (
+        <MediaList
+          dataSource={this.state.dataSource}
+          batchSize={this.props.batchSize || this.state.batchSize}
+          imageMargin={this.props.imageMargin || this.state.imageMargin}
+          emptyGalleryText={this.props.emptyGalleryText || this.state.emptyGalleryText}
+          emptyTextStyle={this.props.emptyTextStyle || {}}
+          customLoader={this.props.customLoader || {}}
+          customSelectMarker={this.props.customSelectMarker || {}}
+          onEndReached={this.onEndReached.bind(this)}
+          selected={this.state.selected}
+          noMoreFiles={this.state.noMoreFiles}
+          activityIndicatorColor={this.state.activityIndicatorColor}
+          itemsPerRow={this.state.itemsPerRow}
+          containerWidth={this.props.containerWidth}
+          markIcon={this.props.markIcon}
+          existsInArray={this.existsInArray}
+          selectMediaFile={this.selectMediaFile} />
+      );
+    }
+  }
+
+  render () {
     return (
       <View style={styles.base}>
-        <AlbumsList albums={albums}/>
-        {/*{ dataSource.length > 0 ? (*/}
-          {/*<FlatList*/}
-            {/*style={{flex: 1}}*/}
-            {/*ListFooterComponent={this.renderFooterLoader.bind(this)}*/}
-            {/*initialNumToRender={batchSize}*/}
-            {/*onEndReached={this.onEndReached.bind(this)}*/}
-            {/*renderItem={({item, index}) => this.renderRow(item, index)}*/}
-            {/*keyExtractor={(item, index) => item[0].node.image.uri+item[0].timestamp+index}*/}
-            {/*data={dataSource}*/}
-            {/*extraData={this.state.selected}*/}
-          {/*/>*/}
-        {/*) : (*/}
-          {/*<Text style={[styles.emptyText, emptyTextStyle]}>{emptyGalleryText}</Text>*/}
-        {/*)}*/}
+        {this.renderMedia()}
       </View>
     );
   }
-  
-  
 }
 
 export default GalleryMediaPicker;
