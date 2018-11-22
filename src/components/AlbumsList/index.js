@@ -9,12 +9,8 @@ import styles from './styles'
 class AlbumsList extends Component {
   constructor( props ) {
     super( props );
-    this.state = {
-
-    };
+    this.state = {};
   }
-
-
 
   render() {
     let { albums } = this.props;
@@ -25,8 +21,8 @@ class AlbumsList extends Component {
           <AlbumItem
             key={index}
             albumName={album.albumName}
-            thumbnail={album.photos[0].image.uri}
-            counter={album.photos.length || 0}
+            thumbnail={album.images[0].image.uri}
+            counter={album.images.length || 0}
             index={index}
             onAlbumPress={this.props.onAlbumPress} />
         ))}

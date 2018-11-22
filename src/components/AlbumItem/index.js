@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import RNThumbnail from 'react-native-thumbnail-a25av';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 
-const checkedIcon  = require("../../assets/images/check-mark.png");
 import styles from './styles'
+const checkedIcon  = require("../../assets/images/check-mark.png");
 
 class AlbumItem extends Component {
   constructor( props ) {

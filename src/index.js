@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { CameraRoll, Platform, View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { CameraRoll, Platform, View } from 'react-native';
 import _ from 'lodash'
 import AlbumsList from '../src/components/AlbumsList';
 import MediaList from '../src/components/MediaList';
@@ -20,7 +20,7 @@ class GalleryMediaPicker extends Component {
       dataSource:                [],
       groupTypes:                'SavedPhotos',
       maximumSelectedFiles:      15,
-      itemsPerRow:              3,
+      itemsPerRow:               3,
       imageMargin:               5,
       activityIndicatorSize:     'small',
       activityIndicatorColor:    '#000000',
@@ -72,9 +72,6 @@ class GalleryMediaPicker extends Component {
       fetchParams.after = this.state.lastCursor;
     }
 
-    console.log(fetchParams);
-
-
     CameraRoll.getPhotos(fetchParams)
       .then((data) => this.appendFiles(data), (e) => console.error(e));
   }
@@ -100,7 +97,7 @@ class GalleryMediaPicker extends Component {
     if (assets.length > 0) {
       newState.lastCursor = data.page_info.end_cursor;
       newState.images = this.state.images.concat(assets);
-      newState.dataSource = this.filterMediaRow(newState.images, this.props.itemsPerRow)
+      // newState.dataSource = this.filterMediaRow(newState.images, this.props.itemsPerRow)
     }
 
     this.setState(newState);
@@ -121,8 +118,7 @@ class GalleryMediaPicker extends Component {
   sort (items) {
     let albums = [];
     grouped = Object.values(_.groupBy(items, (item) => item.group_name));
-    grouped.map(list => {return albums.push({albumName: list[0].group_name, photos: list})});
-    console.log(albums);
+    grouped.map(list => albums.push({albumName: list[0].group_name, images: list}));
 
     this.setState({
       albums
@@ -136,6 +132,11 @@ class GalleryMediaPicker extends Component {
     });
   }
 
+  getAlbumImages (selectedAlbumName) {
+    const selectedAlbum = this.state.albums.filter((album) => album.albumName === selectedAlbumName).pop();
+
+    return selectedAlbum.images;
+  }
 
   /**
    * @description Render background color for the container
@@ -187,49 +188,10 @@ class GalleryMediaPicker extends Component {
     }
     this.setState( {
       selected:   selected,
-      dataSource:  this.filterMediaRow( this.state.images, itemsPerRow )
+      // dataSource:  this.filterMediaRow( this.state.images, itemsPerRow )
     } );
 
     callback(selected, item);
-  }
-
-  /**
-   * @description Sort
-   * @param files
-   * @param numberOfRows
-   * @return {Array}
-   */
-  filterMediaRow( files, numberOfRows ) {
-    let result = [],
-      temp = [];
-
-    for ( let i = 0; i < files.length; ++i ) {
-      if ( i > 0 && i % numberOfRows === 0 ) {
-        result.push( temp );
-        temp = [];
-      }
-      temp.push( files[ i ] );
-    }
-
-    if ( temp.length > 0 ) {
-      while ( temp.length !== numberOfRows ) {
-        temp.push( null );
-      }
-      result.push( temp );
-    }
-
-    return result;
-  }
-
-  /**
-   * @param array
-   * @param property
-   * @param value
-   */
-  existsInArray( array, property, value ) {
-    return array.map( ( o ) => {
-      return o.image[ property ];
-    } ).indexOf( value );
   }
 
   renderMedia () {
@@ -242,22 +204,34 @@ class GalleryMediaPicker extends Component {
     } else {
       return (
         <MediaList
-          dataSource={this.state.dataSource}
-          batchSize={this.props.batchSize || this.state.batchSize}
-          imageMargin={this.props.imageMargin || this.state.imageMargin}
-          emptyGalleryText={this.props.emptyGalleryText || this.state.emptyGalleryText}
-          emptyTextStyle={this.props.emptyTextStyle || {}}
-          customLoader={this.props.customLoader || {}}
-          customSelectMarker={this.props.customSelectMarker || {}}
-          onEndReached={this.onEndReached.bind(this)}
-          selected={this.state.selected}
-          noMoreFiles={this.state.noMoreFiles}
-          activityIndicatorColor={this.state.activityIndicatorColor}
-          itemsPerRow={this.state.itemsPerRow}
-          containerWidth={this.props.containerWidth}
+          images={this.getAlbumImages(this.state.albumSelected)}
+          itemsPerRow={this.props.itemsPerRow}
+          selected={this.props.selected}
+          batchSize={this.props.batchSize}
+          selectMediaFile={this.selectMediaFile}
+          // customAlbumBackButton={this.props.customAlbumBackButton}
+          imageMargin={this.props.imageMargin}
           markIcon={this.props.markIcon}
-          existsInArray={this.existsInArray}
-          selectMediaFile={this.selectMediaFile} />
+          customSelectMarker={this.props.customSelectMarker}
+          activityIndicatorColor={this.state.activityIndicatorColor}
+          />
+        // <MediaList
+        //   dataSource={this.state.dataSource}
+        //   batchSize={this.props.batchSize || this.state.batchSize}
+        //   imageMargin={this.props.imageMargin || this.state.imageMargin}
+        //   emptyGalleryText={this.props.emptyGalleryText || this.state.emptyGalleryText}
+        //   emptyTextStyle={this.props.emptyTextStyle || {}}
+        //   customLoader={this.props.customLoader || {}}
+        //   customSelectMarker={this.props.customSelectMarker || {}}
+        //   onEndReached={this.onEndReached.bind(this)}
+        //   selected={this.state.selected}
+        //   noMoreFiles={this.state.noMoreFiles}
+        //   activityIndicatorColor={this.state.activityIndicatorColor}
+        //   itemsPerRow={this.state.itemsPerRow}
+        //   containerWidth={this.props.containerWidth}
+        //   markIcon={this.props.markIcon}
+        //   existsInArray={this.existsInArray}
+        //   selectMediaFile={this.selectMediaFile} />
       );
     }
   }
