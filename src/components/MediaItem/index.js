@@ -37,10 +37,6 @@ class MediaItem extends Component {
   generateThumbnail () {
     let thumbnailPath = this.props.item.image.uri;
 
-    if (this.props.isLocalFile) {
-      return thumbnailPath;
-    }
-
     if (Platform.OS === 'ios') {
       this.setState({
         thumbnailPath
@@ -94,7 +90,7 @@ class MediaItem extends Component {
         style={{ marginBottom: imageMargin, marginRight: imageMargin }}
         onPress={() => this.onFilePress( item )}>
         <Image
-          source={this.props.isLocalFile ? item.image.uri : { uri: this.state.thumbnailPath }}
+          source={{ uri: this.state.thumbnailPath }}
           style={{ height: this.state.imageSize, width: this.state.imageSize, backgroundColor: '#000000' }}/>
         {selected && marker}
         {selected && <View style={styles.overlay}/>}

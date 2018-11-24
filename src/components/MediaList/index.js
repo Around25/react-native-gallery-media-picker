@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList, ActivityIndicator, View } from 'react-native';
+import { FlatList, ActivityIndicator, View, TouchableOpacity, Text, Image } from 'react-native';
 import MediaItem from '../MediaItem';
 import styles from './styles';
 import { existsInArray } from '../../utils';
@@ -18,30 +18,9 @@ class MediaList extends Component {
   }
 
   componentDidMount () {
-    const imagesArrayWithBackButton = this.addBackButtonToList(this.props.images, this.props.customAlbumBackButton);
-    // const imagesArrayWithBackButton = this.props.images;
-
     this.setState({
-      rows: this.splitIntoRows(imagesArrayWithBackButton, this.props.itemsPerRow)
+      rows: this.splitIntoRows(this.props.images, this.props.itemsPerRow)
     });
-  }
-
-  addBackButtonToList (imagesArray, backButtonImage) {
-    if (!backButtonImage) {
-      backButtonImage = arrow;
-    }
-
-    const backButtonObject = {
-      image: {
-        uri: backButtonImage
-      },
-      timestamp: Date.now()
-    }
-
-    let copyOfImagesArray = [...imagesArray];
-
-    copyOfImagesArray.unshift(backButtonObject);
-    return copyOfImagesArray;
   }
 
   /**
@@ -81,13 +60,46 @@ class MediaList extends Component {
   }
 
   /**
+   * @description Select media file function
+   * @param item
+   */
+  selectMediaFile(item) {
+    let { maximumSelectedFiles, itemsPerRow, callback, selectSingleItem } = this.props;
+    let selected = this.state.selected,
+      index = existsInArray( selected, 'image', 'uri', item.image.uri );
+
+    if ( index >= 0 ) {
+      selected.splice( index, 1 );
+    } else {
+      if ( selectSingleItem ) {
+        selected.splice( 0, selected.length );
+      }
+      if ( selected.length < maximumSelectedFiles ) {
+        selected.push( item );
+      }
+    }
+    this.setState( {
+      selected:   selected,
+      // dataSource:  this.filterMediaRow( this.state.images, itemsPerRow )
+    } );
+
+    callback(selected, item);
+  }
+
+  backToAlbums () {
+    this.setState({
+      selected: []
+    });
+    this.props.callback([], null);
+    this.props.onBackPress();
+  }
+
+  /**
    * @description Render media item
    * @param item
    * @return {XML}
    */
   renderMediaItem( item, index ) {
-    console.log(item);
-
     let {
       selected,
       imageMargin,
@@ -103,7 +115,6 @@ class MediaList extends Component {
     return (
       <MediaItem
         key={uri + index}
-        isLocalFile={typeof item.image.uri === 'number'}
         markIcon={markIcon}
         item={item}
         selected={isSelected}
@@ -111,7 +122,7 @@ class MediaList extends Component {
         customSelectMarker={customSelectMarker}
         itemsPerRow={itemsPerRow}
         containerWidth={containerWidth}
-        onClick={this.props.selectMediaFile.bind( this )}
+        onClick={this.selectMediaFile.bind(this)}
       />
     );
   }
@@ -128,9 +139,6 @@ class MediaList extends Component {
       }
       return this.renderMediaItem(item, index);
     });
-
-    console.log(items);
-
 
     return (
       <View style={styles.row}>
@@ -150,18 +158,58 @@ class MediaList extends Component {
     return null;
   }
 
+  renderBackToAlbumsButton () {
+    return (
+      <View style={{flex: 1, padding: 7}}>
+        <TouchableOpacity
+          onPress={this.backToAlbums.bind(this)}
+          style={{
+            flex: 1,
+            backgroundColor: '#cccccc',
+            borderRadius: 8,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row'
+          }}>
+          <Image
+            source={arrow}
+            style={{
+              height: 20,
+              width: 20,
+              marginRight: 5,
+              transform: [{rotate: '180deg'}],
+            }} />
+          <Text>Back to albums</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  renderList () {
+    return (
+      <View style={{flex: 14}}>
+        <FlatList
+          ListFooterComponent={this.renderFooterLoader.bind(this)}
+          initialNumToRender={this.props.batchSize}
+          onEndReached={this.onEndReached.bind(this)}
+          renderItem={({item, index}) => this.renderRow(item, index)}
+          keyExtractor={(item, index) => item[0].image.uri + item[0].timestamp + index}
+          data={this.state.rows}
+          extraData={this.props.selected}
+        />
+      </View>
+    );
+  }
+
   render () {
     return (
-      <FlatList
-        style={{flex: 1}}
-        ListFooterComponent={this.renderFooterLoader.bind(this)}
-        initialNumToRender={this.props.batchSize}
-        onEndReached={this.onEndReached.bind(this)}
-        renderItem={({item, index}) => {console.log(item); return this.renderRow(item, index);}}
-        keyExtractor={(item, index) => item[0].image.uri + item[0].timestamp + index}
-        data={this.state.rows}
-        extraData={this.props.selected}
-      />
+      <View
+        style={{
+          flex: 1
+        }}>
+        {this.renderBackToAlbumsButton()}
+        {this.renderList()}
+      </View>
     );
   }
 }

@@ -97,7 +97,6 @@ class GalleryMediaPicker extends Component {
     if (assets.length > 0) {
       newState.lastCursor = data.page_info.end_cursor;
       newState.images = this.state.images.concat(assets);
-      // newState.dataSource = this.filterMediaRow(newState.images, this.props.itemsPerRow)
     }
 
     this.setState(newState);
@@ -129,6 +128,12 @@ class GalleryMediaPicker extends Component {
   selectAlbum (albumName) {
     this.setState({
       albumSelected: albumName
+    });
+  }
+
+  deselectAlbum () {
+    this.setState({
+      albumSelected: ''
     });
   }
 
@@ -167,33 +172,6 @@ class GalleryMediaPicker extends Component {
     }
   }
 
-  /**
-   * @description Select media file function
-   * @param item
-   */
-  selectMediaFile( item ) {
-    let { maximumSelectedFiles, itemsPerRow, callback, selectSingleItem } = this.props;
-    let selected = this.state.selected,
-      index = this.existsInArray( selected, 'uri', item.image.uri );
-
-    if ( index >= 0 ) {
-      selected.splice( index, 1 );
-    } else {
-      if ( selectSingleItem ) {
-        selected.splice( 0, selected.length );
-      }
-      if ( selected.length < maximumSelectedFiles ) {
-        selected.push( item );
-      }
-    }
-    this.setState( {
-      selected:   selected,
-      // dataSource:  this.filterMediaRow( this.state.images, itemsPerRow )
-    } );
-
-    callback(selected, item);
-  }
-
   renderMedia () {
     if (!this.state.albumSelected) {
       return (
@@ -207,31 +185,16 @@ class GalleryMediaPicker extends Component {
           images={this.getAlbumImages(this.state.albumSelected)}
           itemsPerRow={this.props.itemsPerRow}
           selected={this.props.selected}
+          onBackPress={this.deselectAlbum.bind(this)}
+          callback={this.props.callback}
           batchSize={this.props.batchSize}
           selectMediaFile={this.selectMediaFile}
-          // customAlbumBackButton={this.props.customAlbumBackButton}
           imageMargin={this.props.imageMargin}
           markIcon={this.props.markIcon}
           customSelectMarker={this.props.customSelectMarker}
           activityIndicatorColor={this.state.activityIndicatorColor}
+          maximumSelectedFiles={this.props.maximumSelectedFiles || this.state.maximumSelectedFiles}
           />
-        // <MediaList
-        //   dataSource={this.state.dataSource}
-        //   batchSize={this.props.batchSize || this.state.batchSize}
-        //   imageMargin={this.props.imageMargin || this.state.imageMargin}
-        //   emptyGalleryText={this.props.emptyGalleryText || this.state.emptyGalleryText}
-        //   emptyTextStyle={this.props.emptyTextStyle || {}}
-        //   customLoader={this.props.customLoader || {}}
-        //   customSelectMarker={this.props.customSelectMarker || {}}
-        //   onEndReached={this.onEndReached.bind(this)}
-        //   selected={this.state.selected}
-        //   noMoreFiles={this.state.noMoreFiles}
-        //   activityIndicatorColor={this.state.activityIndicatorColor}
-        //   itemsPerRow={this.state.itemsPerRow}
-        //   containerWidth={this.props.containerWidth}
-        //   markIcon={this.props.markIcon}
-        //   existsInArray={this.existsInArray}
-        //   selectMediaFile={this.selectMediaFile} />
       );
     }
   }
