@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { FlatList, ActivityIndicator, View, TouchableOpacity, Text, Image } from 'react-native';
+import _ from 'lodash';
+import moment from 'moment';
 import MediaItem from '../MediaItem';
 import styles from './styles';
-import { existsInArray } from '../../utils';
+import { existsInArray, placeInTime } from '../../utils';
 
 const arrow = require('../../assets/images/next-arrow.png');
 
@@ -24,31 +26,74 @@ class MediaList extends Component {
   }
 
   /**
-   * @description Sort
+   * @description Split all the images by their time tag (placeInTime) and create the arrays for each row with itemsPerRow elements
    * @param images
    * @param itemsPerRow
    * @return {Array}
    */
   splitIntoRows (images, itemsPerRow) {
-    let result = [];
-    let temp = [];
+    let result = {};
+    let temp = {};
 
     for ( let i = 0; i < images.length; ++ i ) {
-      if ( i > 0 && i % itemsPerRow === 0 ) {
-        result.push( temp );
-        temp = [];
+      const timestampOfImage = images[i].timestamp * 1000;
+      const placeInTimeOfImage = placeInTime(timestampOfImage);
+
+      if (temp[placeInTimeOfImage] === undefined) {
+        temp[placeInTimeOfImage] = [];
       }
-      temp.push( images[ i ] );
+
+      temp[placeInTimeOfImage].push(images[i]);
+
+      if (temp[placeInTimeOfImage].length > 0 && temp[placeInTimeOfImage].length % itemsPerRow === 0) {
+        if (result[placeInTimeOfImage] === undefined) {
+          result[placeInTimeOfImage] = [];
+        }
+        result[placeInTimeOfImage].push(temp[placeInTimeOfImage]);
+        temp[placeInTimeOfImage] = [];
+      }
     }
 
-    if ( temp.length > 0 ) {
-      while ( temp.length !== itemsPerRow ) {
-        temp.push( null );
+    for (let prop in temp) {
+      if (temp[prop].length > 0) {
+        while (temp[prop].length !== itemsPerRow) {
+          temp[prop].push(null);
+        }
+
+        if (result[prop] === undefined) {
+          result[prop] = [];
+        }
+        result[prop].push(temp[prop]);
       }
-      result.push( temp );
     }
 
-    return result;
+    let final = [];
+    let order = ['today', 'week', 'month'];
+    let allTimeTags = Object.keys(result).map(prop => {
+      if (Number.isInteger(parseInt(prop))) {
+        return parseInt(prop);
+      }
+
+      return prop;
+    });
+
+    let allMonths = allTimeTags.filter(prop => Number.isInteger(prop) && prop < 12);
+    allMonths = _.reverse(_.sortBy(allMonths));
+    let allYears = allTimeTags.filter(prop => Number.isInteger(prop) && !allMonths.includes(prop));
+    allYears = _.reverse(_.sortBy(allYears));
+
+    order = _.concat(order, allMonths, allYears);
+
+    for (let prop of order) {
+      if (result[prop]) {
+        final = _.concat(final, result[prop]);
+      }
+    }
+
+    console.log(order);
+    console.log(result);
+
+    return final;
   }
 
   onEndReached () {
@@ -127,6 +172,40 @@ class MediaList extends Component {
     );
   }
 
+  renderRowHeader (rowData) {
+    let headerTitle = placeInTime(rowData[0].timestamp * 1000);
+
+    if (Number.isInteger(headerTitle) && headerTitle < 12) {
+      headerTitle = moment(headerTitle).format('MMMM');
+    }
+
+    if (headerTitle === 'today') {
+      headerTitle = 'Today';
+    }
+
+    if (headerTitle === 'week') {
+      headerTitle = 'This Week';
+    }
+
+    if (headerTitle === 'month') {
+      headerTitle = 'This Month'
+    }
+
+    return (
+      <View
+        style={{
+          alignItems: 'center'
+        }}>
+        <Text
+          style={{
+            textAlign: 'center',
+            marginVertical: 7,
+            color: '#aaaaaa'
+          }}>{headerTitle}</Text>
+      </View>
+    );
+  }
+
   /**
    * @description Render list row
    * @param rowData
@@ -141,8 +220,11 @@ class MediaList extends Component {
     });
 
     return (
-      <View style={styles.row}>
-        {items}
+      <View style={{}}>
+        {this.renderRowHeader(rowData)}
+        <View style={styles.row}>
+          {items}
+        </View>
       </View>
     );
   }
