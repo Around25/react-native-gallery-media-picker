@@ -15,7 +15,8 @@ class MediaList extends Component {
     this.state = {
       finishedLoading: false,
       rows: [],
-      selected: []
+      rowsSorted: {},
+      selected: [],
     };
   }
 
@@ -90,8 +91,9 @@ class MediaList extends Component {
       }
     }
 
-    console.log(order);
-    console.log(result);
+    this.setState({
+      rowsSorted: result
+    });
 
     return final;
   }
@@ -125,7 +127,6 @@ class MediaList extends Component {
     }
     this.setState( {
       selected:   selected,
-      // dataSource:  this.filterMediaRow( this.state.images, itemsPerRow )
     } );
 
     callback(selected, item);
@@ -174,6 +175,10 @@ class MediaList extends Component {
 
   renderRowHeader (rowData) {
     let headerTitle = placeInTime(rowData[0].timestamp * 1000);
+
+    if (this.state.rowsSorted[headerTitle].indexOf(rowData) > 0) {
+      return null;
+    }
 
     if (Number.isInteger(headerTitle) && headerTitle < 12) {
       headerTitle = moment(headerTitle).format('MMMM');
