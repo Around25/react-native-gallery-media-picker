@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import RNThumbnail from 'react-native-thumbnail-a25av';
-import { View, Text, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 
-const checkedIcon  = require("../../assets/images/check-mark.png");
 import AlbumItem from '../AlbumItem'
 import styles from './styles'
 
