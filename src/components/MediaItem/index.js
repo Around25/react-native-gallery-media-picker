@@ -35,7 +35,7 @@ class MediaItem extends Component {
   }
 
   generateThumbnail () {
-    let thumbnailPath = this.props.item.node.image.uri;
+    let thumbnailPath = this.props.item.image.uri;
 
     if (Platform.OS === 'ios') {
       this.setState({
@@ -59,8 +59,8 @@ class MediaItem extends Component {
    * @description Trigger when file is pressed
    * @param item
    */
-  onFilePress( item ) {
-    this.props.onClick( item.node );
+  onFilePress (item) {
+    this.props.onClick(item);
   }
 
   /**
@@ -68,8 +68,8 @@ class MediaItem extends Component {
    * @param markIcon
    * @return {XML}
    */
-  renderMarker( markIcon ) {
-    return(
+  renderMarker (markIcon) {
+    return (
       <Image style={styles.marker} source={markIcon ? markIcon : checkedIcon}/>
     )
   };

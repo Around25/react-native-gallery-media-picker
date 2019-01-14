@@ -10,9 +10,20 @@ This is a react-native component that fetches gallery files ( images and video )
 
   - works on iOS and Android
 
+### Release notes v2.0
+
+With the release of version 2.0 of this package, the functionality has been overhauled to work in the following manner:
+  - firstly, display a list of albums for the user to choose from
+  - secondly, display the media that are associated with the selected album
+
+This is the first implementation of the new functionality and it will receive incremental updates in the future.
+
 ### Features
 
-  - fetchs images and videos from gallery 
+  - creates a list of albums
+  - fetches images and videos for the selected album
+  - categorize the media files by the date they were created ()
+  - render a button that offers a way to go back to the album list
   - set maximum number of selected items
   - custom loader component
   - customizable default loader
@@ -24,6 +35,19 @@ This is a react-native component that fetches gallery files ( images and video )
   - set number of items per row
   - set media file margins
 
+### Categorized by date
+
+With version 2.0, after selecting an album, the user is presented with a gallery of media files categorized by the date they were created.
+
+These are the categories:
+  - "Today" = files that were created after 00:00 of today
+  - "This Week" = files that were created after 00:00 of Monday of the current week
+  - "This Month" = files that were created after 00:00 of the first day of the current month
+  - [month name] (descending order) = files that were created between 00:00 of the first day of the previous month and 00:00 of the first day of the current month
+  - [year] (descending order) = files tht were created between 00:00 of 1st of January of the previous year and 00:00 of 1st of January of the current year
+
+The categories, that are empty, are not rendered.
+
 ### Installation
 
 ```sh
@@ -32,7 +56,7 @@ $ npm i @around25/react-native-gallery-media-picker --save
 
 ### iOS
 
-Add in `info.plist` 
+Add in `info.plist`
 
 ```<plist version="1.0">
   <dict>
@@ -103,7 +127,7 @@ import { PermissionsAndroid } from 'react-native';
 |:------:|:-----------:|:----:|
 | `callback` | Callback with selected files and current selected file | ***{function}***
 
-### Example 
+### Example
 
 ```javascript
 import React, { Component } from 'react';
@@ -121,7 +145,7 @@ export default class App extends Component {
       hasPermission: false
     }
   }
-  
+
 
   async requestCameraPermission() {
     try {
@@ -142,17 +166,17 @@ export default class App extends Component {
       console.warn(err)
     }
   }
-  
+
   componentWillMount(){
     this.requestCameraPermission();
   }
-  
+
   getSelectedFiles(files, current) {
     this.setState({ totalFiles: files.length, selected: files });
     console.log('Current: ',current);
     console.log(this.state.selected);
   }
-  
+
   /**
   * @description Render custom loader that shows when files are fetching
   */
@@ -161,11 +185,11 @@ export default class App extends Component {
       <ActivityIndicator color="red" size="large"/>
     )
   }
-  
+
   /**
   * @description Render custom marker
   * This will cancel the "markIcon" option
-  */  
+  */
   renderSelectMarker(){
     return(
     <View style={styles.markerWrapper}>
@@ -173,7 +197,7 @@ export default class App extends Component {
     </View>
     )
   }
-  
+
   render() {
     return (
       <View style={styles.container}>
@@ -224,9 +248,12 @@ const styles = StyleSheet.create({
 
 # Todos
 
- - add more options 
+ - add more options
  - add filter buttons
- - add overlay with total video duration
+ - add overlay with total video duration for video files
+ - add more customization
+ - add an "All" album
+ - add the possibility to disable categorization by date
 
 # License
 
