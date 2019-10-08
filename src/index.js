@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { CameraRoll, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
+import CameraRoll from "@react-native-community/cameraroll";
 import _ from 'lodash'
 import AlbumsList from '../src/components/AlbumsList';
 import MediaList from '../src/components/MediaList';
