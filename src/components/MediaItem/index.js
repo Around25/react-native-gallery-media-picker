@@ -18,7 +18,7 @@ class MediaItem extends Component {
     this.generateThumbnail = this.generateThumbnail.bind(this);
   }
 
-  componentWillMount () {
+  componentDidMount () {
     let { width } = Dimensions.get( 'window' );
     let { imageMargin, itemsPerRow, containerWidth } = this.props;
 
@@ -26,9 +26,7 @@ class MediaItem extends Component {
       width = containerWidth;
     }
     this.setState({imageSize: (width - (itemsPerRow + 1) * imageMargin) / itemsPerRow})
-  }
 
-  componentDidMount () {
     if (this.state.thumbnailPath === 'dummy') {
       this.generateThumbnail();
     }
