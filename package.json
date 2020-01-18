@@ -1,6 +1,6 @@
 {
   "name": "@around25/react-native-gallery-media-picker",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A react native component that will get all the media files (images and video) from device gallery and allow to select items",
   "main": "index.js",
   "scripts": {
